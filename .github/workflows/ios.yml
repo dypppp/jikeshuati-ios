@@ -15,8 +15,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install npm dependencies
         run: npm ci
@@ -29,7 +29,7 @@ jobs:
           cd ios/App
           xcodebuild -scheme App \
             -configuration Debug \
-            -destination "generic/platform=iOS Simulator" \
+            -sdk iphonesimulator \
             -derivedDataPath DerivedData \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
@@ -47,7 +47,6 @@ jobs:
             exit 1
           fi
 
-          APP_NAME=$(basename "$APP_PATH")
           mkdir -p Payload
           cp -R "$APP_PATH" Payload/
           hdiutil create -volname App -srcfolder Payload -ov -format UDRO app.ipa
