@@ -19,7 +19,9 @@ jobs:
           cache: "npm"
 
       - name: Install npm dependencies
-        run: npm ci
+        run: |
+          npm config set registry https://registry.npmjs.org/
+          npm ci
 
       - name: Sync Capacitor
         run: npx cap sync ios
@@ -27,10 +29,17 @@ jobs:
       - name: Build iOS (xcodebuild)
         run: |
           cd ios/App
-          # clean stale build locks from previous failures
           rm -rf ~/Library/Developer/Xcode/DerivedData/App-*
-          xcodebuild clean -scheme App -sdk iphonesimulator
-          xcodebuild -scheme App \
+          if [ -f App.xcworkspace ]; then
+            echo "Using workspace"
+            TARGET="-workspace App.xcworkspace"
+          else
+            echo "Using project"
+            TARGET="-project App.xcodeproj"
+          fi
+          xcodebuild clean $TARGET -scheme App -sdk iphonesimulator
+          xcodebuild $TARGET \
+            -scheme App \
             -configuration Debug \
             -sdk iphonesimulator \
             -derivedDataPath DerivedData \
@@ -43,11 +52,6 @@ jobs:
         run: |
           APP_PATH=$(find ios/App/DerivedData -name "App.app" -type d | head -1)
           echo "App path: $APP_PATH"
-          if [ -z "$APP_PATH" ]; then
-            echo "Searching all .app bundles..."
-            find ios/App/DerivedData -name "*.app" -type d
-            exit 1
-          fi
           mkdir -p Payload
           cp -R "$APP_PATH" Payload/
           hdiutil create -volname App -srcfolder Payload -ov -format UDRO app.ipa
