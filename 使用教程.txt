@@ -1,0 +1,9 @@
+cmd
+cd android
+cmd
+.\gradlew.bat clean
+cmd
+.\gradlew.bat assembleDebug --no-daemon
+第 3 步：复制 APK
+cmd
+copy app\build\outputs\apk\debug\app-debug.apk C:\Users\DYP\Desktop\极客刷题_智科_网络运维.apk

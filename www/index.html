@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>极客刷题</title>
+<style>
+:root{
+  --c1:#4f46e5;--c1h:#4338ca;--cg:#16a34a;--cr:#dc2626;--cw:#f59e0b;
+  --bg:#f1f5f9;--fg:#1e293b;--f2:#64748b;--bd:#e2e8f0;
+  --sb-w:230px;--r:10px;
+}
+body.dark{--c1:#818cf8;--c1h:#6366f1;--bg:#0f172a;--fg:#e2e8f0;--f2:#94a3b8;--bd:#334155}
+body.dark .card,body.dark .modal,body.dark .bank-item,body.dark .bank-item:hover{background:#1e293b}
+body.dark .bank-item.selected{background:#1e1b4b;border-color:var(--c1);box-shadow:0 0 0 2px #312e81}
+body.dark #main::before{background-image:url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22350%22%20height%3D%22220%22%3E%3Ctext%20x%3D%22175%22%20y%3D%22110%22%20font-family%3D%22Arial%2CMicrosoft%20YaHei%2Csans-serif%22%20font-size%3D%2224%22%20font-weight%3D%22900%22%20fill%3D%22%23fff%22%20fill-opacity%3D%220.06%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%20transform%3D%22rotate%28-12%20175%20110%29%22%3E%E6%9E%81%E5%AE%A2%E7%BD%91%E7%BB%9C%E8%BF%90%E7%BB%B4%3C%2Ftext%3E%3C%2Fsvg%3E);background-repeat:repeat;background-size:350px 220px}
+
+body.dark .up-area:hover,body.dark .up-area.drag{background:#1e1b4b}
+body.dark .toast{box-shadow:0 4px 12px #0008}
+body.dark .inp:focus{box-shadow:0 0 0 3px rgba(129,140,248,.15)}
+body.dark .quiz-opt:hover{background:#1e1b4b;border-color:#6366f1}
+body.dark .quiz-opt.sel{background:#1e1b4b;border-color:var(--c1)}
+body.dark .quiz-opt.ok{background:#14532d;border-color:#16a34a}
+body.dark .quiz-opt.ko{background:#450a0a;border-color:#dc2626}
+body.dark .exp{background:#1e1b4b}
+body.dark .rev{background:#1e293b}
+body.dark .cat-folder:hover,body.dark .cat-folder.open{background:rgba(255,255,255,.08)}
+body.dark #quizBankList .cat-folder:hover,body.dark #quizBankList .cat-folder.open{background:#1e1b4b}
+body.dark .bank-item .bdel:hover{background:#450a0a}
+body.dark .btn-outline{color:#818cf8;border-color:#818cf8}
+body.dark .btn-outline:hover{background:#818cf8;color:#0f172a}
+body.dark .btn-danger{background:#450a0a;color:#fca5a5;border-color:#7f1d1d}
+body.dark .btn-danger:hover{background:#7f1d1d}
+body.dark #sidebar{background:linear-gradient(180deg,#1e1b4b 0%,#312e81 100%)}
+body.dark .badge{opacity:.85}
+body.dark .inp{background:#1e293b;color:var(--fg)}
+body.dark .page-title{color:var(--fg)}
+body.dark .welcome .w-icon{opacity:.7}
+body.dark .welcome h2{color:var(--fg)}
+body.dark .welcome p{color:var(--f2)}
+body.dark #bankCount{color:var(--f2)}
+body.dark #quizSelInfo{color:var(--c1)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC',sans-serif;background:var(--bg);color:var(--fg);height:100vh;display:flex;overflow:hidden;line-height:1.7}
+
+/* ===== Sidebar ===== */
+#sidebar{width:var(--sb-w);flex-shrink:0;background:linear-gradient(180deg,#3730a3 0%,var(--c1) 100%);color:#fff;display:flex;flex-direction:column;overflow-y:auto;transition:width .3s}
+#sidebar .logo{padding:22px 18px 10px;font-size:20px;font-weight:800;letter-spacing:1px}
+#sidebar .logo small{display:block;font-size:11px;font-weight:400;opacity:.7;margin-top:2px;letter-spacing:0}
+.sb-search{padding:10px 14px}
+.sb-search input{width:100%;padding:8px 12px;border-radius:8px;border:none;font-size:13px;outline:none;background:rgba(255,255,255,.18);color:#fff;placeholder-color:rgba(255,255,255,.5)}
+.sb-search input::placeholder{color:rgba(255,255,255,.55)}
+.sb-nav{display:flex;flex-direction:column;gap:2px;padding:8px 8px 0;flex:1}
+.sb-nav .nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;transition:background .12s;user-select:none}
+.sb-nav .nav-item:hover{background:rgba(255,255,255,.13)}
+.sb-nav .nav-item.active{background:rgba(255,255,255,.22)}
+.sb-nav .nav-item .ni-icon{font-size:20px;width:26px;text-align:center;flex-shrink:0}
+.sb-bottom{padding:14px;font-size:11px;opacity:.5;text-align:center}
+
+/* ===== Sidebar Collapsed ===== */
+body.sidebar-collapsed #sidebar{width:0;min-width:0;overflow:hidden;border-right:none}
+body.sidebar-collapsed #sidebar .logo,body.sidebar-collapsed #sidebar .sb-search,body.sidebar-collapsed #sidebar .sb-nav,body.sidebar-collapsed #sidebar .sb-bottom{display:none}
+body.sidebar-collapsed .sb-toggle{left:10px}
+#main.sidebar-expanded{transition:padding-left .3s}
+body.sidebar-collapsed #main{padding-left:20px}
+
+/* ===== Main ===== */
+#main{flex:1;overflow-y:auto;position:relative;transition:padding-left .3s}#main::before{content:"";position:fixed;inset:0;left:var(--sb-w);pointer-events:none;z-index:0;background-image:url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22350%22%20height%3D%22220%22%3E%3Ctext%20x%3D%22175%22%20y%3D%22110%22%20font-family%3D%22Arial%2CMicrosoft%20YaHei%2Csans-serif%22%20font-size%3D%2224%22%20font-weight%3D%22900%22%20fill%3D%22%23000%22%20fill-opacity%3D%220.04%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%20transform%3D%22rotate%28-12%20175%20110%29%22%3E%E6%9E%81%E5%AE%A2%E7%BD%91%E7%BB%9C%E8%BF%90%E7%BB%B4%3C%2Ftext%3E%3C%2Fsvg%3E);background-repeat:repeat;background-size:350px 220px}
+.view{display:none;padding:24px 28px;max-width:860px;margin:0 auto;width:100%}
+.view.on{display:block}
+.page-title{font-size:22px;font-weight:800;color:var(--fg);margin-bottom:4px}
+.page-desc{font-size:13px;color:var(--f2);margin-bottom:18px}
+
+/* Cards */
+.card{background:#fff;border-radius:var(--r);padding:20px;margin-bottom:14px;box-shadow:0 1px 3px #0001;border:1px solid var(--bd)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .12s;font-family:inherit}
+.btn-primary{background:var(--c1);color:#fff}.btn-primary:hover{background:var(--c1h)}
+.btn-success{background:var(--cg);color:#fff}.btn-success:hover{background:#15803d}
+.btn-outline{background:transparent;color:var(--c1);border:2px solid var(--c1)}.btn-outline:hover{background:var(--c1);color:#fff}
+.btn-danger{background:#fee2e2;color:var(--cr);border:2px solid #fca5a5}.btn-danger:hover{background:#fca5a5}
+.btn-sm{padding:6px;text-align:center;font-size:13px}
+.btn-fw{width:100%}
+.inp{width:100%;padding:9px;border:2px solid var(--bd);border-radius:8px;font-size:14px;outline:none;font-family:inherit}.inp:focus{border-color:var(--c1)}
+.lbl{display:block;font-weight:600;margin-bottom:5px;color:var(--f2);font-size:12px}
+
+/* Upload */
+.up-area{border:2px dashed #cbd5e1;border-radius:var(--r);padding:32px;text-align:center;cursor:pointer;transition:all .15s}
+.up-area:hover,.up-area.drag{border-color:var(--c1);background:#eef2ff}
+.up-area .ic{font-size:40px;display:block;margin-bottom:8px}
+
+/* Bank list */
+.cat-folder{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:background .1s;user-select:none}
+.cat-folder:hover,.cat-folder.open{background:rgba(255,255,255,.15)}
+#quizBankList .cat-folder:hover,#quizBankList .cat-folder.open{background:#f5f3ff}
+.cat-folder .cf-icon{font-size:14px;transition:transform .15s}
+.cat-folder.open .cf-icon{transform:rotate(90deg)}
+.cat-folder .cf-count{font-size:11px;font-weight:400;opacity:.65;margin-left:auto}
+.cat-items{display:none;padding-left:14px}
+.cat-items.open{display:block}
+.cat-items .bank-item{font-size:13px;padding:7px 10px;border-radius:7px;margin-bottom:4px}
+.cat-items .bank-item .bn{font-size:13px}
+.wb-badge{display:inline-block;background:var(--cr);color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:6px;min-width:18px;text-align:center}
+.bank-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--bd);border-radius:10px;margin-bottom:8px;transition:all .12s;cursor:pointer}
+.bank-item:hover{background:#f8f7ff;border-color:#a5b4fc}
+.bank-item.selected{background:#eef2ff;border-color:var(--c1);box-shadow:0 0 0 2px #e0e7ff}
+.bank-item .bcheck{width:18px;height:18px;accent-color:var(--c1);cursor:pointer;flex-shrink:0}
+.bank-item .binfo{flex:1;min-width:0}
+.bank-item .bn{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bank-item .bm{font-size:11px;color:var(--f2);margin-top:2px}
+.bank-item .bdel{background:none;border:none;cursor:pointer;font-size:16px;color:var(--cr);opacity:.45;padding:2px 6px;border-radius:6px}.bank-item .bdel:hover{opacity:1;background:#fef2f2}
+.badge{display:inline-block;padding:2px;border-radius:10px;font-size:10px;font-weight:600}
+.bg-s{background:#dbeafe;color:#1d4ed8}.bg-m{background:#fce7f3;color:#9d174d}.bg-t{background:#d1fae5;color:#065f46}.bg-f{background:#fef3c7;color:#92400e}.bg-c{background:#ede9fe;color:#5b21b6}
+
+/* Quiz */
+.quiz-opt{display:flex;align-items:flex-start;gap:10px;padding:11px;border:2px solid var(--bd);border-radius:10px;cursor:pointer;transition:all .12s;user-select:none;margin-bottom:8px}
+.quiz-opt:hover{border-color:#a5b4fc;background:#f8f7ff}
+.quiz-opt.sel{border-color:var(--c1);background:#eef2ff}
+.quiz-opt.ok{border-color:var(--cg);background:#f0fdf4}.quiz-opt.ko{border-color:var(--cr);background:#fef2f2}
+.quiz-opt.done{pointer-events:none}
+.quiz-opt .lt{font-weight:700;min-width:22px;flex-shrink:0}
+.pg{width:100%;height:6px;background:#e2e8f0;border-radius:3px;margin:8px 0 14px;overflow:hidden}
+.pg-f{height:100%;background:var(--c1);border-radius:3px;transition:width .3s}
+.exp{border-left:4px solid var(--c1);background:#f8f7ff;padding:12px 14px;border-radius:0 8px 8px 0;margin-top:12px;display:none;font-size:13px;color:var(--f2)}
+
+/* Result */
+.rev{border-left:4px solid #e2e8f0;padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:8px;background:#fafbfc}
+.rev.ok{border-left-color:var(--cg)}.rev.ko{border-left-color:var(--cr)}
+
+/* Modal */
+.modal-mask{position:fixed;inset:0;background:#0008;z-index:9998;display:flex;align-items:center;justify-content:center;animation:fadeIn .15s}
+.modal{background:#fff;border-radius:14px;padding:24px;max-width:400px;width:90%;box-shadow:0 20px 60px #0003;animation:slideUp .2s}
+.modal h3{font-size:17px;font-weight:700;margin-bottom:14px}
+.modal .field{margin-bottom:12px}
+.modal .act{display:flex;gap:10px;margin-top:16px;justify-content:flex-end}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* Toast */
+.sb-toggle-inline{background:none;border:none;color:#fff;cursor:pointer;font-size:16px;padding:2px 5px;border-radius:4px;opacity:.5;transition:all .15s;line-height:1;vertical-align:middle;margin-left:4px}
+.sb-toggle-inline:hover{opacity:1;background:rgba(255,255,255,.2)}
+body.sidebar-collapsed .sb-toggle-inline{display:none}
+.sb-toggle{position:fixed;top:14px;left:14px;width:36px;height:36px;border-radius:8px;border:1px solid var(--bd);background:rgba(255,255,255,.92);cursor:pointer;font-size:16px;display:none;align-items:center;justify-content:center;z-index:100;transition:all .2s;backdrop-filter:blur(12px);box-shadow:0 2px 12px rgba(0,0,0,.1);color:var(--fg)}
+body.sidebar-collapsed .sb-toggle{display:flex}
+.sb-toggle:hover{transform:scale(1.05);box-shadow:0 4px 16px rgba(0,0,0,.15);background:rgba(255,255,255,1)}
+body.dark .sb-toggle{background:rgba(30,41,59,.8);border-color:#475569;color:#e2e8f0}
+.theme-toggle{position:fixed;top:14px;right:18px;width:38px;height:38px;border-radius:50%;border:2px solid var(--bd);background:rgba(255,255,255,.8);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;z-index:100;transition:all .2s;backdrop-filter:blur(8px);box-shadow:0 2px 8px #0001}
+.theme-toggle:hover{transform:scale(1.1);box-shadow:0 4px 16px #0002}
+body.dark .theme-toggle{background:rgba(30,41,59,.8);border-color:#475569}
+.toast{position:fixed;top:18px;right:18px;padding:12px 20px;border-radius:8px;color:#fff;font-weight:600;z-index:9999;animation:ti .3s ease;box-shadow:0 4px 12px #0003}
+.toast--ok{background:var(--cg)}.toast--er{background:var(--cr)}.toast--in{background:var(--c1)}
+@keyframes ti{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* Exam Timer */
+#examBar{display:none;text-align:center;margin-bottom:4px;padding:8px 12px;border-radius:10px;background:#f0fdf4;border:1px solid #bbf7d0}
+#examBar.warn{background:#fef3c7;border-color:#fcd34d}
+#examBar.danger{background:#fef2f2;border-color:#fca5a5;animation:examPulse 1s infinite}
+@keyframes examPulse{0%,100%{opacity:1}50%{opacity:.7}}
+#examClock{font-size:24px;font-weight:800;color:var(--cg);font-variant-numeric:tabular-nums}
+#examBar.warn #examClock{color:#d97706}
+#examBar.danger #examClock{color:var(--cr)}
+
+/* Review */
+.review-card{background:var(--bg-card, #fff);border-radius:var(--r);padding:20px;margin-bottom:14px;box-shadow:0 1px 3px #0001;border:1px solid var(--bd);position:relative;z-index:1}
+.review-card .rq-num{font-size:12px;color:var(--f2);margin-bottom:4px}
+.review-card .rq-text{font-size:16px;font-weight:700;margin-bottom:12px;line-height:1.8}
+.review-card .rq-opts{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.review-card .rq-opt{padding:8px 14px;border-radius:8px;font-size:14px;border:1px solid var(--bd);transition:background .15s}
+.review-card .rq-opt.correct{background:#f0fdf4;border-color:#86efac;color:#166534}
+.review-card .rq-opt.user-correct{background:#dbeafe;border-color:#93c5fd}
+.review-card .rq-exp{border-left:4px solid var(--c1);padding:8px 14px;margin-top:8px;font-size:13px;color:var(--f2);background:#f8f7ff;border-radius:0 8px 8px 0}
+body.dark .review-card{background:#1e293b}
+body.dark .review-card .rq-opt.correct{background:#14532d;border-color:#22c55e;color:#86efac}
+body.dark .review-card .rq-opt.user-correct{background:#1e1b4b;border-color:#818cf8}
+body.dark .review-card .rq-exp{background:#1e1b4b}
+body.dark .review-card .rq-opt.correct{background:#14532d;border-color:#22c55e;color:#86efac}
+body.dark .review-card .rq-opt.user-correct{background:#1e1b4b;border-color:#818cf8}
+body.dark .review-card .rq-exp{background:#1e1b4b}
+
+/* Manual import modal */
+.manual-import-modal .modal{max-width:560px;max-height:85vh;overflow-y:auto}
+.manual-opt-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.manual-opt-row input[type=text]{flex:1}
+.manual-opt-row input[type=checkbox]{width:18px;height:18px;cursor:pointer}
+.manual-opt-row .opt-mark{padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:#fff}
+.manual-opt-row .opt-mark.correct{background:#dcfce7;border-color:#86efac;color:#166534}
+.manual-opt-row button{background:none;border:none;color:var(--cr);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:4px}
+.manual-opt-row button:hover{background:#fef2f2}
+
+/* Welcome */
+
+.welcome{text-align:center;padding:60px 20px;color:var(--f2)}
+.welcome .w-icon{font-size:64px;display:block;margin-bottom:16px}
+.welcome h2{font-size:20px;color:var(--fg);margin-bottom:6px}
+</style>
+</head>
+<body>
+<button class="sb-toggle" id="sbToggle" onclick="toggleSidebar()" title="展开侧边栏">☰</button>
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="切换深色/浅色模式">🌙</button>
+
+<!-- ===== Sidebar ===== -->
+<div id="sidebar">
+  <div class="logo" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span>极客刷题</span><button class="sb-toggle-inline" onclick="toggleSidebar()" title="收起侧边栏">◀</button><small style="width:100%;display:block;margin-top:2px">错题追踪 · 智能刷题</small></div>
+  <div class="sb-search">
+    <input type="text" id="sbSearch" placeholder="搜索题库…" oninput="searchBanks(this.value)">
+  </div>
+  <nav class="sb-nav" id="catFoldersNav"></nav>
+  <div class="sb-bottom">v1.0 · Electron</div>
+</div>
+
+<!-- ===== Main Content ===== -->
+<div id="main">
+
+  <!-- Modal -->
+  <div class="modal-mask" id="bankModal" style="display:none">
+    <div class="modal">
+      <h3>题库信息</h3>
+      <div class="field">
+        <div class="lbl">题库名称</div>
+        <input type="text" class="inp" id="modalName" placeholder="例：华三认证题库">
+      </div>
+      <div class="field">
+        <div class="lbl">分类</div>
+        <input type="text" class="inp" id="modalCat" placeholder="例：华三、驾照" list="catList">
+        <datalist id="catList"></datalist>
+      </div>
+      <div class="field">
+        <div class="lbl">子分类（可选）</div>
+        <input type="text" class="inp" id="modalSub" placeholder="例：1、基础篇">
+      </div>
+      <div style="font-size:12px;color:var(--f2)" id="modalHint"></div>
+      <div class="act">
+        <button class="btn btn-sm btn-outline" onclick="closeModal(false)">取消</button>
+        <button class="btn btn-sm" style="background:#f1f5f9;color:var(--f2)" onclick="closeModal(true)">跳过</button>
+        <button class="btn btn-sm btn-primary" id="modalSaveBtn" onclick="confirmBank()">保存题库</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manual Import Modal -->
+  <div class="modal-mask" id="manualModal" style="display:none">
+    <div class="modal" style="max-width:560px;max-height:85vh;overflow-y:auto">
+      <h3>✍️ 手动录入题目</h3>
+      <div class="field">
+        <div class="lbl">题目类型</div>
+        <select class="inp" id="manType" onchange="onManualTypeChange()">
+          <option value="single">单选题</option>
+          <option value="multiple">多选题</option>
+          <option value="truefalse">判断题</option>
+          <option value="fill">填空题</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="lbl">题目</div>
+        <textarea class="inp" id="manQuestion" rows="3" placeholder="请输入题目内容…" style="resize:vertical"></textarea>
+      </div>
+      <div class="field" id="manOptionsField">
+        <div class="lbl">选项（点击 ✓ 标记为正确答案）</div>
+        <div id="manOpts"></div>
+        <button class="btn btn-sm" style="margin-top:6px;background:#f1f5f9;color:var(--f2)" onclick="addManualOption()">+ 添加选项</button>
+      </div>
+      <div class="field">
+        <div class="lbl">解析（可选）</div>
+        <textarea class="inp" id="manExp" rows="2" placeholder="答案解析…" style="resize:vertical"></textarea>
+      </div>
+      <div class="field">
+        <div class="lbl">保存到</div>
+        <select class="inp" id="manTargetBank"><option value="">选择已有题库…</option></select>
+        <div style="font-size:11px;color:var(--f2);margin-top:4px">或选择已有题库，空选则创建新题库</div>
+      </div>
+      <div class="field" id="manNewBankFields">
+        <div class="lbl">新题库名称</div>
+        <input type="text" class="inp" id="manBankName" placeholder="例：自建题库">
+      </div>
+      <div style="display:flex;gap:10px" id="manNewBankCat">
+        <div class="field" style="flex:1">
+          <div class="lbl">分类</div>
+          <input type="text" class="inp" id="manCat" placeholder="例：自建" list="catList">
+        </div>
+        <div class="field" style="flex:1">
+          <div class="lbl">子分类（可选）</div>
+          <input type="text" class="inp" id="manSub" placeholder="例：基础篇">
+        </div>
+      </div>
+      <div class="act">
+        <button class="btn btn-sm btn-outline" onclick="closeManualModal()">取消</button>
+        <button class="btn btn-sm btn-primary" onclick="saveManualQuestion()">💾 保存题目</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- View: Home -->
+  <div class="view on" id="vHome">
+    <div class="welcome">
+      <span class="w-icon">📝</span>
+      <h2>欢迎使用刷题软件</h2>
+      <p style="margin:12px 0 20px">请通过左侧导航栏选择操作</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="navTo('upload',document.querySelector('[data-view=upload]'))">📤 上传题库</button>
+        <button class="btn btn-outline" onclick="navTo('banks',document.querySelector('[data-view=banks]'))">📂 管理题库</button>
+        <button class="btn btn-success" id="homeStartBtn" onclick="navTo('quiz',document.querySelector('[data-view=quiz]'))">✏️ 开始刷题</button>
+      </div>
+      <div id="homeStats" style="margin-top:28px;font-size:13px;color:var(--f2)"></div>
+    </div>
+  </div>
+
+  <!-- View: Upload -->
+  <div class="view" id="vUpload">
+    <div class="page-title">上传题库</div>
+    <div class="page-desc">支持 .txt 和 .json 格式，可批量上传</div>
+    <div class="card">
+      <div class="up-area" id="upArea">
+        <span class="ic">📄</span>
+        <div>点击或拖拽文件到此处</div>
+        <div style="font-size:12px;color:var(--f2);margin-top:4px">.txt / .json</div>
+      </div>
+      <input type="file" id="fileIn" accept=".txt,.json" multiple style="display:none">
+      <div id="impStatus" style="margin-top:8px;font-size:13px;color:var(--c1);font-weight:600"></div>
+      <button class="btn btn-sm btn-outline" onclick="refreshAll()" style="margin-top:8px">🔄 刷新数据</button>
+    </div>
+    <div class="card">
+      <div class="lbl">手动录入</div>
+      <button class="btn btn-outline btn-fw" onclick="openManualImport()">✍️ 手动录入题目</button>
+    </div>
+  </div>
+
+  <!-- View: Banks -->
+  <div class="view" id="vBanks">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div>
+        <div class="page-title" style="margin-bottom:2px">我的题库</div>
+        <div class="page-desc" style="margin-bottom:0" id="bankCount"></div>
+      </div>
+      <button class="btn btn-sm btn-outline" onclick="navTo('upload',document.querySelector('[data-view=upload]'))">+ 上传新题库</button>
+    </div>
+    <div id="bankList"></div>
+  </div>
+
+  <!-- View: Quiz Config -->
+  <div class="view" id="vQuiz">
+    <div class="page-title">开始刷题</div>
+    <div class="page-desc">选择题库和设置，开始答题</div>
+
+    <div class="card" id="quizBankCard">
+      <div class="lbl">选择题库（可多选）</div>
+      <div id="quizBankList" style="margin-top:8px;max-height:260px;overflow-y:auto"></div>
+      <div id="quizSelInfo" style="margin-top:8px;font-weight:600;font-size:13px;color:var(--c1)"></div>
+    </div>
+
+    <div class="card" id="quizPlayCard">
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <div style="flex:1;min-width:140px">
+          <div class="lbl">刷题数量</div>
+          <input type="number" class="inp" id="qCount" min="1" value="100">
+          <div style="font-size:11px;color:var(--f2);margin-top:4px" id="qHint"></div>
+        </div>
+        <div style="flex:1;min-width:140px">
+          <div class="lbl">题型筛选</div>
+          <select class="inp" id="typeF">
+            <option value="all">全部</option>
+            <option value="single">单选题</option>
+            <option value="multiple">多选题</option>
+            <option value="truefalse">判断题</option>
+            <option value="fill">填空题</option>
+          </select>
+        </div>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:14px">
+        <input type="checkbox" id="shuffle" checked> 随机出题
+      </label>
+      <div style="margin-top:14px">
+        <div style="display:flex;gap:10px"><button class="btn btn-primary" id="startQuizBtn" style="flex:1" onclick="startQuiz()">🚀 开始刷题</button><button class="btn btn-outline" id="reviewBtn" onclick="startReview()" style="flex:1">📖 背题模式</button></div>
+      </div>
+    </div>
+    <div class="card" id="examPlayCard" style="display:none">
+      <div class="lbl">🎯 考试模式 <span style="font-weight:400;font-size:12px;color:var(--f2)">—— 满分100分，限时作答</span></div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <div style="flex:1;min-width:130px">
+          <div class="lbl">考试题数</div>
+          <input type="number" class="inp" id="examCount" min="1" value="100">
+        </div>
+        <div style="flex:1;min-width:130px">
+          <div class="lbl">考试时间（分钟）</div>
+          <input type="number" class="inp" id="examTime" min="1" value="60">
+        </div>
+        <div style="flex:1;min-width:130px">
+          <div class="lbl">题型筛选</div>
+          <select class="inp" id="examTypeF">
+            <option value="all">全部</option>
+            <option value="single">单选题</option>
+            <option value="multiple">多选题</option>
+            <option value="truefalse">判断题</option>
+            <option value="fill">填空题</option>
+          </select>
+        </div>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:14px">
+        <input type="checkbox" id="examShuffle" checked> 随机出题
+      </label>
+      <div style="margin-top:14px">
+        <button class="btn btn-success btn-fw" onclick="startExam()">🎯 开始考试</button>
+      </div>
+    </div>
+
+  <!-- View: Quiz -->
+</div>
+  <div class="view" id="vQuizRun">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <button class="btn btn-sm btn-outline" onclick="quitQuiz()">← 退出</button>
+      <div style="font-weight:600;color:var(--f2);font-size:13px" id="pgT"></div>
+    </div>
+    <div class="pg"><div class="pg-f" id="pgF"></div></div>
+    <div id="examBar">
+      <div id="examClock">60:00</div>
+      <div style="font-size:12px;color:var(--f2)">剩余时间</div>
+    </div>
+    <div class="card">
+      <div id="qMeta" style="margin-bottom:10px"></div>
+      <div id="qText" style="font-size:16px;font-weight:600;margin-bottom:16px;line-height:1.8"></div>
+      <div id="optsA"></div>
+      <div style="display:none" id="fillA"><input type="text" class="inp" id="fillIn" placeholder="输入答案…" onkeydown="if(event.key==='Enter')submitAnswer()"></div>
+      <div class="exp" id="expB"><div id="expT"></div></div>
+      <div style="display:flex;gap:10px;margin-top:16px;justify-content:center">
+        <button class="btn btn-primary" id="subBtn" onclick="submitAnswer()">确认答案</button>
+        <button class="btn btn-success" id="nxtBtn" style="display:none" onclick="nextQuestion()">下一题 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- View: Review (背题模式) -->
+  <div class="view" id="vReview">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div>
+        <div class="page-title" style="margin-bottom:2px">📖 背题模式</div>
+        <div class="page-desc" style="margin-bottom:0" id="reviewInfo"></div>
+      </div>
+      <button class="btn btn-sm btn-outline" onclick="navTo('quiz',document.querySelector('[data-view=quiz]'))">← 返回</button>
+    </div>
+    <div id="reviewList"></div>
+  </div>
+
+  <!-- View: Result -->
+  <div class="view" id="vResult">
+    <div class="page-title" style="text-align:center">📊 刷题结果</div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:52px;font-weight:800;color:var(--c1)" id="scoreN">0</div>
+      <div style="font-size:17px;color:var(--f2)" id="scoreT">/ 0</div>
+      <div style="font-size:18px;font-weight:700;margin-top:6px" id="scoreP"></div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:12px" id="resG"></div>
+    </div>
+    <div class="card">
+      <div class="lbl">答题回顾</div>
+      <div id="revL"></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:20px">
+      <button class="btn btn-primary" onclick="retryWrong()">🔄 重做错题</button>
+      <button class="btn btn-outline" onclick="navTo('quiz',null)">🏠 返回设置</button>
+    </div>
+  </div>
+
+</div><!-- /#main -->
+
+<script>
+(function(){
+"use strict";
+
+var ALL_BANKS = [], SELECTED_BANKS = {}, FILE_QUEUE = [], PENDING_FILE = null, PENDING_QUESTIONS = null, PI = 0, PT = 0;
+var Q = [], PQ = [], ci = 0, ans = [], wrong = [];
+
+function KEY_LIST(){ return 'qq_bank_list'; }
+function KEY_DATA(id){ return 'qq_bank_data_' + id; }
+
+/* ========= Parser ========= */
+function parseTxt(txt) {
+  var normalized = txt.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+  var blocks = normalized.split(/\n\s*\n/);
+  var qs = [];
+  for (var b = 0; b < blocks.length; b++) {
+    var block = blocks[b]; if (!block.trim()) continue;
+    var lines = block.trim().split('\n').filter(function(l){ return l.trim(); }); if (lines.length < 2) continue;
+    var first = lines[0], type = 'single', qtext = first;
+    var tm = first.match(/【(.+?)】/);
+    if (tm) {
+      var t = tm[1];
+      if (t.indexOf('多选') !== -1) type = 'multiple';
+      else if (t.indexOf('单选') !== -1) type = 'single';
+      else if (t.indexOf('判断') !== -1) type = 'truefalse';
+      else if (t.indexOf('填空') !== -1) type = 'fill';
+      qtext = first.replace(/【.+?】/, '').trim();
+    }
+    var sm = qtext.match(/（(\d+)分）/);
+    var score = sm ? parseInt(sm[1]) : 1;
+    qtext = qtext.replace(/（\d+分）/, '').trim();
+    var opts = [], cans = [], exp = '', tags = [];
+    for (var li = 1; li < lines.length; li++) {
+      var ln = lines[li];
+      if (/^(答案)?解析[：:]/.test(ln)) { exp = ln.replace(/^(答案)?解析[：:]/, '').trim(); continue; }
+      if (ln.indexOf('答案：') === 0) continue;
+      if (ln.indexOf('标签：') === 0) { tags = ln.replace('标签：','').split(/[,，]/).map(function(x){return x.trim()}).filter(Boolean); continue; }
+      var om = ln.match(/^([A-Z]+)[.、．]\s*(.+)$/);
+      if (om) {
+        var ot = om[2].replace(/（正确答案）|\(正确答案\)/, '').trim();
+        opts.push(ot);
+        if (/（正确答案）|\(正确答案\)/.test(om[2])) cans.push(opts.length - 1);
+      }
+    }
+    if (type === 'single' && opts.length === 2 && opts.indexOf('正确') !== -1 && opts.indexOf('错误') !== -1) type = 'truefalse';
+    if (qtext && opts.length > 0) qs.push({type:type,question:qtext,options:opts,correctAnswers:cans,score:score,explanation:exp,tags:tags});
+  }
+  return qs;
+}
+
+function parseJson(txt) { var d = JSON.parse(txt); return d.questions || d || []; }
+
+/* ========= Storage ========= */
+function saveList(){ try{localStorage.setItem(KEY_LIST(),JSON.stringify(ALL_BANKS));}catch(e){} }
+function loadList(){ try{var d=localStorage.getItem(KEY_LIST());if(d){ALL_BANKS=JSON.parse(d);return true;}}catch(e){}ALL_BANKS=[];return false; }
+function saveBank(id,qs){ try{localStorage.setItem(KEY_DATA(id),JSON.stringify(qs));}catch(e){} }
+function loadBank(id){ try{var d=localStorage.getItem(KEY_DATA(id));if(d)return JSON.parse(d);}catch(e){}return[]; }
+function deleteBank(id){
+  try{localStorage.removeItem(KEY_DATA(id));ALL_BANKS=ALL_BANKS.filter(function(b){return b.id!==id;});saveList();}catch(e){}
+}
+function genId(){ return 'b_'+Date.now()+'_'+Math.random().toString(36).substr(2,5); }
+
+/* ========= Manual Import ========= */
+var _manualOptions=['','','',''];
+var _manualCorrect=[];
+
+function openManualImport(){
+  loadList();
+  _manualOptions=['','','','']; _manualCorrect=[];
+  document.getElementById('manQuestion').value='';
+  document.getElementById('manExp').value='';
+  document.getElementById('manType').value='single';
+  document.getElementById('manBankName').value='';
+  document.getElementById('manCat').value='';
+  document.getElementById('manSub').value='';
+  // populate bank dropdown
+  var sel=document.getElementById('manTargetBank');
+  sel.innerHTML='<option value="">创建新题库…</option>';
+  ALL_BANKS.forEach(function(b){sel.innerHTML+='<option value="'+b.id+'">'+escHtml(b.name)+'</option>';});
+  onManualTypeChange();
+  onManualTargetChange();
+  document.getElementById('manualModal').style.display='flex';
+}
+
+function onManualTypeChange(){
+  var t=document.getElementById('manType').value;
+  var f=document.getElementById('manOptionsField');
+  f.style.display=(t==='fill')?'none':'block';
+  if(t==='truefalse'){_manualOptions=['正确','错误']; _manualCorrect=[0];}
+  else if(t==='fill'){_manualOptions=[]; _manualCorrect=[0];}
+  renderManualOptions();
+}
+
+function renderManualOptions(){
+  var html=''; _manualCorrect=_manualCorrect||[];
+  _manualOptions.forEach(function(opt,i){
+    var isCorrect=_manualCorrect.indexOf(i)!==-1;
+    html+='<div class="manual-opt-row">';
+    html+='<span style="font-size:13px;font-weight:700;min-width:20px">'+String.fromCharCode(65+i)+'</span>';
+    html+='<input type="text" class="inp" value="'+escHtml(opt)+'" oninput="__updateManOpt('+i+',this.value)" placeholder="选项'+(i+1)+'">';
+    html+='<span class="opt-mark'+(isCorrect?' correct':'')+'" onclick="__toggleManCorrect('+i+')" title="标记为正确答案">✓</span>';
+    if(_manualOptions.length>2) html+='<button onclick="__removeManOpt('+i+')" title="删除">✕</button>';
+    html+='</div>';
+  });
+  document.getElementById('manOpts').innerHTML=html;
+}
+
+window.__updateManOpt=function(i,val){_manualOptions[i]=val;};
+window.__toggleManCorrect=function(i){
+  var t=document.getElementById('manType').value;
+  if(t==='multiple'){
+    var idx=_manualCorrect.indexOf(i);
+    if(idx!==-1)_manualCorrect.splice(idx,1);else _manualCorrect.push(i);
+  }else{_manualCorrect=[i];}
+  renderManualOptions();
+};
+window.__removeManOpt=function(i){_manualOptions.splice(i,1);renderManualOptions();};
+window.addManualOption=function(){_manualOptions.push('');renderManualOptions();};
+
+function onManualTargetChange(){
+  var sel=document.getElementById('manTargetBank').value;
+  document.getElementById('manNewBankFields').style.display=sel?'none':'block';
+  document.getElementById('manNewBankCat').style.display=sel?'none':'flex';
+}
+// Attach listener
+document.getElementById('manTargetBank').addEventListener('change',onManualTargetChange);
+
+function saveManualQuestion(){
+  var question=document.getElementById('manQuestion').value.trim();
+  if(!question){toast('请填写题目','er');return;}
+  var type=document.getElementById('manType').value;
+  var opts=(type==='fill'||type==='truefalse')?_manualOptions:_manualOptions.filter(function(o){return o.trim();});
+  if(type!=='fill'&&opts.length<2){toast('至少需要两个选项','er');return;}
+  var corrects=_manualCorrect.filter(function(i){return i<opts.length;});
+  if(!corrects.length){toast('请标记正确答案','er');return;}
+  if(type==='single'&&corrects.length>1){toast('单选题只能有一个正确答案','er');return;}
+  var exp=document.getElementById('manExp').value.trim();
+  var targetId=document.getElementById('manTargetBank').value;
+  
+  var q={type:type,question:question,options:opts.map(function(o){return o.trim();}),correctAnswers:corrects,score:1,explanation:exp,tags:[]};
+  
+  var bankId,bankName;
+  if(targetId){
+    var bank=ALL_BANKS.find(function(b){return b.id===targetId;});
+    if(!bank){toast('目标题库不存在','er');return;}
+    var qs=loadBank(targetId); qs.push(q); saveBank(targetId,qs);
+    bank.questionCount=qs.length; saveList();
+    bankId=targetId; bankName=bank.name;
+  }else{
+    var name=document.getElementById('manBankName').value.trim();
+    var cat=document.getElementById('manCat').value.trim();
+    if(!name){toast('请填写题库名称','er');return;} if(!cat){toast('请填写分类','er');return;}
+    var sub=document.getElementById('manSub').value.trim();
+    bankId=genId();
+    var nb={id:bankId,name:name,category:cat,subCategory:sub,questionCount:1,fileName:'',createdAt:Date.now()};
+    ALL_BANKS.push(nb); saveList(); saveBank(bankId,[q]);
+    bankName=name;
+  }
+  
+  toast('题目已保存到「'+bankName+'」','ok');
+  document.getElementById('manQuestion').value='';
+  document.getElementById('manExp').value='';
+  _manualOptions=['','','','']; _manualCorrect=[];
+  document.getElementById('manType').value='single';
+  onManualTypeChange();
+  loadBanksUI(); buildCatFoldersNav();
+}
+
+function closeManualModal(){
+  document.getElementById('manualModal').style.display='none';
+}
+
+/* ========= Wrong Bank ========= */
+function WRONG_KEY(){ return 'qq_wrong_bank'; }
+function loadWrongBank(){ try{var d=localStorage.getItem(WRONG_KEY());if(d)return JSON.parse(d);}catch(e){}return{questions:[]}; }
+function saveWrongBank(wb){ try{localStorage.setItem(WRONG_KEY(),JSON.stringify(wb));}catch(e){} }
+
+function addToWrongBank(q){
+  var wb=loadWrongBank();
+  var key=q.question.trim()+'|||'+q.type;
+  var found=wb.questions.find(function(w){return (w.question.trim()+'|||'+w.type)===key;});
+  if(found){ found._wrongCount=(found._wrongCount||0)+1; found._consecutiveCorrect=0; }
+  else {
+    var entry={type:q.type,question:q.question,options:q.options||[],correctAnswers:q.correctAnswers||[],score:q.score||1,explanation:q.explanation||'',tags:q.tags||[],_sourceBankName:q._bankName||'',_wrongCount:1,_consecutiveCorrect:0};
+    wb.questions.push(entry);
+  }
+  wb.questionCount=wb.questions.length; saveWrongBank(wb);
+}
+
+function markCorrectInWrongBank(q){
+  var wb=loadWrongBank();
+  var key=q.question.trim()+'|||'+q.type;
+  var idx=wb.questions.findIndex(function(w){return (w.question.trim()+'|||'+w.type)===key;});
+  if(idx===-1) return;
+  wb.questions[idx]._consecutiveCorrect=(wb.questions[idx]._consecutiveCorrect||0)+1;
+  if(wb.questions[idx]._consecutiveCorrect>=2){
+    wb.questions.splice(idx,1);
+  }
+  wb.questionCount=wb.questions.length; saveWrongBank(wb);
+}
+
+function getWrongQuestionCount(){
+  var wb=loadWrongBank(); return wb.questions?wb.questions.length:0;
+}
+
+window.__startWrongBank=function(){
+  SELECTED_BANKS={}; SELECTED_BANKS['wrong_bank']=true;
+  navTo('quiz',document.querySelector('[data-view=quiz]'));
+};
+
+function getWrongBankInfo(){
+  var wb=loadWrongBank(); return wb.questions.length?wb:null;
+}
+
+
+/* ========= Navigation ========= */
+function navTo(view,el){
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on');});
+  document.getElementById('v'+view.charAt(0).toUpperCase()+view.slice(1)).classList.add('on');
+  document.querySelectorAll('.sb-nav .nav-item').forEach(function(n){n.classList.remove('active');});
+  if(el) el.classList.add('active');
+  if(view==='banks'){loadBanksUI();buildCatFoldersNav();}
+  if(view==='quiz'){loadQuizBanksUI();var qc=document.getElementById('quizPlayCard');if(qc)qc.style.display='';var ec=document.getElementById('examPlayCard');if(ec)ec.style.display='none';var sb=document.getElementById('startQuizBtn');if(sb)sb.style.display='';var rb=document.getElementById('reviewBtn');if(rb)rb.style.display='none';}
+  if(view==='home')  loadHomeStats();
+}
+
+/* ========= Home ========= */
+function loadHomeStats(){
+  loadList();
+  var totalB = ALL_BANKS.length, totalQ = 0;
+  ALL_BANKS.forEach(function(b){totalQ+=b.questionCount||0;});
+  var el = document.getElementById('homeStats');
+  if(totalB===0) el.textContent = '暂无题库，请先上传';
+  else el.textContent = '已加载 ' + totalB + ' 个题库，共 ' + totalQ + ' 道题';
+}
+
+/* ========= Upload ========= */
+function initUpload(){
+  var up = document.getElementById('upArea'), fi = document.getElementById('fileIn');
+  up.addEventListener('click',function(){fi.click();});
+  up.addEventListener('dragover',function(e){e.preventDefault();this.classList.add('drag');});
+  up.addEventListener('dragleave',function(){this.classList.remove('drag');});
+  up.addEventListener('drop',function(e){e.preventDefault();this.classList.remove('drag');handleFiles(e.dataTransfer.files);});
+  fi.addEventListener('change',function(e){if(e.target.files.length)handleFiles(e.target.files);this.value='';});
+}
+
+function refreshAll(){
+  loadList();
+  loadBanksUI(); buildCatFoldersNav(); loadQuizBanksUI(); loadHomeStats();
+  toast('数据已刷新','in');
+}
+function handleFiles(files){
+  FILE_QUEUE=[]; for(var i=0;i<files.length;i++) FILE_QUEUE.push(files[i]);
+  PI=0; PT=FILE_QUEUE.length; showModalForCurrent();
+}
+
+function showModalForCurrent(){
+  if(PI>=FILE_QUEUE.length){document.getElementById('impStatus').textContent='';loadBanksUI();toast('全部文件处理完成','ok');return;}
+  var file=FILE_QUEUE[PI]; PENDING_FILE=file; PENDING_QUESTIONS=null;
+  document.getElementById('modalName').value=file.name.replace(/\.[^.]+$/,'');
+  document.getElementById('modalCat').value=''; document.getElementById('modalSub').value='';
+  document.getElementById('modalHint').textContent='正在读取文件内容…';
+  document.getElementById('modalSaveBtn').disabled=true; document.getElementById('modalSaveBtn').style.opacity='0.5';
+  document.getElementById('modalSaveBtn').textContent='解析中…';
+  updateCatDatalist(); document.getElementById('bankModal').style.display='flex';
+  document.getElementById('impStatus').textContent='请填写题库信息（文件 '+(PI+1)+'/'+PT+'）';
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var qs=file.name.toLowerCase().indexOf('.json')>=0?parseJson(e.target.result):parseTxt(e.target.result);
+      PENDING_QUESTIONS=qs;
+      document.getElementById('modalHint').textContent='识别到 '+qs.length+' 道题（'+(PI+1)+'/'+PT+'）';
+    }catch(err){PENDING_QUESTIONS=[];document.getElementById('modalHint').textContent='解析失败: '+err.message;}
+    document.getElementById('modalSaveBtn').disabled=false;document.getElementById('modalSaveBtn').style.opacity='1';
+    document.getElementById('modalSaveBtn').textContent='保存题库';
+  };
+  reader.onerror=function(){PENDING_QUESTIONS=[];document.getElementById('modalHint').textContent='读取失败';
+    document.getElementById('modalSaveBtn').disabled=false;document.getElementById('modalSaveBtn').style.opacity='1';
+    document.getElementById('modalSaveBtn').textContent='保存题库';};
+  reader.readAsText(file);
+}
+
+function advanceQueue(){PI++;showModalForCurrent();}
+
+function updateCatDatalist(){
+  var cats={}; ALL_BANKS.forEach(function(b){cats[b.category]=true;});
+  var dl=document.getElementById('catList'); dl.innerHTML='';
+  Object.keys(cats).sort().forEach(function(c){var o=document.createElement('option');o.value=c;dl.appendChild(o);});
+}
+
+function closeModal(skip){
+  document.getElementById('bankModal').style.display='none'; PENDING_FILE=null; PENDING_QUESTIONS=null;
+  if(skip) advanceQueue();
+}
+
+function confirmBank(){
+  var name=document.getElementById('modalName').value.trim(), cat=document.getElementById('modalCat').value.trim(), sub=document.getElementById('modalSub').value.trim();
+  if(!name){toast('请填写题库名称','er');return;} if(!cat){toast('请填写分类','er');return;}
+  if(!PENDING_QUESTIONS||!PENDING_QUESTIONS.length){toast('没有识别到题目','er');return;}
+  var id=genId(), bank={id:id,name:name,category:cat,subCategory:sub,questionCount:PENDING_QUESTIONS.length,fileName:PENDING_FILE?PENDING_FILE.name:'',createdAt:Date.now()};
+  ALL_BANKS.push(bank); saveList(); saveBank(id,PENDING_QUESTIONS);
+  closeModal(false); toast('题库「'+name+'」已保存（'+PENDING_QUESTIONS.length+' 题）','ok');
+  loadBanksUI(); buildCatFoldersNav(); advanceQueue();
+}
+
+/* ========= Bank List ========= */
+var OPEN_CATS = {};
+
+function buildCatFoldersNav(){
+  loadList();
+  var wbInfo=getWrongBankInfo();
+  if(wbInfo){
+    var wbSel=SELECTED_BANKS['wrong_bank']?'checked':'';
+    html+='<div class="bank-item'+(wbSel?' selected':'')+'" onclick="__quizToggleBank(\'wrong_bank\')" style="border-color:#fca5a5;background:#fff5f5"><input type="checkbox" class="bcheck" '+wbSel+' onclick="event.stopPropagation()" id="chkq_wrong_bank"><label class="binfo" for="chkq_wrong_bank" style="flex:1;cursor:pointer"><div class="bn">📕 错题库 <span style="color:var(--cr);font-size:12px">'+wbInfo.questionCount+' 题</span></div><div class="bm">来自各题库的错题，答对2次自动移除</div></label></div>';
+  }
+  var groups={}; ALL_BANKS.forEach(function(b){(groups[b.category]=groups[b.category]||[]).push(b);});
+  var nav=document.getElementById('catFoldersNav');
+  var cats=Object.keys(groups).sort();
+  var html='<div class="nav-item active" data-view="home" onclick="navTo(\'home\',this)"><span class="ni-icon">🏠</span> 首页</div>';
+  html+='<div class="nav-item" data-view="upload" onclick="navTo(\'upload\',this)"><span class="ni-icon">📤</span> 上传题库</div>';
+  var wc=getWrongQuestionCount(); html+='<div class="nav-item" data-view="quiz" onclick="__startWrongBank()" style="background:rgba(220,38,38,.15)"><span class="ni-icon">📕</span> 错题本'+(wc?'<span class="wb-badge">'+wc+'</span>':'')+'</div>';
+  if(cats.length){
+    html+='<div style="font-size:11px;font-weight:700;opacity:.5;padding:12px 14px 4px;text-transform:uppercase;letter-spacing:1px">题库分类</div>';
+    cats.forEach(function(cat){
+      var open=OPEN_CATS[cat];
+      html+='<div class="cat-folder'+(open?' open':'')+'" id="cf_'+escAttr(cat)+'" onclick="toggleCatFolder(\''+escAttr(cat)+'\')">';
+      html+='<span class="cf-icon">▶</span> '+escHtml(cat)+'<span class="cf-count">'+groups[cat].length+'</span></div>';
+      html+='<div class="cat-items'+(open?' open':'')+'" id="ci_'+escAttr(cat)+'">';
+      groups[cat].forEach(function(b){
+        html+='<div class="bank-item" onclick="openBankView(\''+b.id+'\')">';
+        html+='<div class="bn">'+escHtml(b.name)+(b.subCategory?' <small>'+escHtml(b.subCategory)+'</small>':'')+'</div></div>';
+      });
+      html+='</div>';
+    });
+  }
+  html+='<div style="margin-top:auto;padding-top:10px">';
+  html+='<div class="nav-item" data-view="quiz" onclick="navToQuiz()"><span class="ni-icon">✏️</span> 开始刷题</div>';
+  html+='<div class="nav-item" data-view="review" onclick="navToReview()"><span class="ni-icon">📖</span> 背题模式</div>';html+='<div class="nav-item" data-view="quiz" onclick="navToExam()"><span class="ni-icon">🎯</span> 考试模式</div></div>';
+  nav.innerHTML=html;
+}
+
+window.toggleCatFolder=function(cat){
+  OPEN_CATS[cat]=!OPEN_CATS[cat];
+  var el=document.getElementById('cf_'+cat), items=document.getElementById('ci_'+cat);
+  if(el) el.classList.toggle('open',OPEN_CATS[cat]);
+  if(items) items.classList.toggle('open',OPEN_CATS[cat]);
+};
+
+window.openBankView=function(id){
+  var b=ALL_BANKS.find(function(x){return x.id===id;}); if(!b)return;
+  SELECTED_BANKS={}; SELECTED_BANKS[id]=true;
+  navTo('quiz',document.querySelector('[data-view=quiz]'));
+};
+
+function loadBanksUI(){
+  loadList();
+  var has=ALL_BANKS.length>0;
+  document.getElementById('bankCount').textContent=has?'共 '+ALL_BANKS.length+' 个题库，共 '+ALL_BANKS.reduce(function(s,b){return s+b.questionCount;},0)+' 题':'';
+  if(!has){document.getElementById('bankList').innerHTML='<div style="text-align:center;color:var(--f2);padding:32px 0;font-size:14px">暂无题库，请先上传</div>';return;}
+  var wbInfo=getWrongBankInfo();
+  if(wbInfo){
+    var wbSel=SELECTED_BANKS['wrong_bank']?'checked':'';
+    html+='<div class="bank-item'+(wbSel?' selected':'')+'" onclick="__quizToggleBank(\'wrong_bank\')" style="border-color:#fca5a5;background:#fff5f5"><input type="checkbox" class="bcheck" '+wbSel+' onclick="event.stopPropagation()" id="chkq_wrong_bank"><label class="binfo" for="chkq_wrong_bank" style="flex:1;cursor:pointer"><div class="bn">📕 错题库 <span style="color:var(--cr);font-size:12px">'+wbInfo.questionCount+' 题</span></div><div class="bm">来自各题库的错题，答对2次自动移除</div></label></div>';
+  }
+  var groups={}; ALL_BANKS.forEach(function(b){(groups[b.category]=groups[b.category]||[]).push(b);});
+  var html='';
+  Object.keys(groups).sort().forEach(function(cat){
+    var banks=groups[cat];
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0 4px;border-bottom:2px solid var(--bd)">';
+    html+='<div style="font-size:14px;font-weight:700;color:var(--c1)">'+escHtml(cat)+'（'+banks.length+' 个题库）</div>';
+    html+='<button class="btn btn-sm btn-outline" onclick="__startQuizCat(\''+escAttr(cat)+'\')">✏️ 刷此分类</button></div>';
+    banks.forEach(function(b){
+      var sub=b.subCategory?' › '+escHtml(b.subCategory):'';
+      html+='<div class="bank-item" id="bi_'+b.id+'">';
+      html+='<div class="binfo"><div class="bn">'+escHtml(b.name)+sub+'</div>';
+      html+='<div class="bm">'+new Date(b.createdAt).toLocaleDateString('zh-CN')+' · '+b.questionCount+' 题</div></div>';
+      html+='<div style="display:flex;gap:6px">';
+      html+='<button class="btn btn-sm btn-outline" title="刷此题库" onclick="__startQuizBank(\''+b.id+'\')">✏️</button>';
+      html+='<button class="bdel" title="删除" onclick="__delBank(\''+b.id+'\')">✕</button></div>';
+      html+='</div>';
+    });
+  });
+  document.getElementById('bankList').innerHTML=html;
+}
+
+window.__delBank=function(id){
+  var b=ALL_BANKS.find(function(x){return x.id===id;}); if(!b)return;
+  if(!confirm('确定删除题库「'+b.name+'」？'))return; deleteBank(id); toast('已删除「'+b.name+'」','ok'); loadBanksUI(); buildCatFoldersNav();
+};
+window.__startQuizBank=function(id){SELECTED_BANKS={};SELECTED_BANKS[id]=true;navTo('quiz',document.querySelector('[data-view=quiz]'));};
+window.__startQuizCat=function(cat){
+  var wbInfo=getWrongBankInfo();
+  if(wbInfo){
+    var wbSel=SELECTED_BANKS['wrong_bank']?'checked':'';
+    html+='<div class="bank-item'+(wbSel?' selected':'')+'" onclick="__quizToggleBank(\'wrong_bank\')" style="border-color:#fca5a5;background:#fff5f5"><input type="checkbox" class="bcheck" '+wbSel+' onclick="event.stopPropagation()" id="chkq_wrong_bank"><label class="binfo" for="chkq_wrong_bank" style="flex:1;cursor:pointer"><div class="bn">📕 错题库 <span style="color:var(--cr);font-size:12px">'+wbInfo.questionCount+' 题</span></div><div class="bm">来自各题库的错题，答对2次自动移除</div></label></div>';
+  }
+  var groups={}; ALL_BANKS.forEach(function(b){(groups[b.category]=groups[b.category]||[]).push(b);});
+  SELECTED_BANKS={}; (groups[cat]||[]).forEach(function(b){SELECTED_BANKS[b.id]=true;});
+  navTo('quiz',document.querySelector('[data-view=quiz]'));
+};
+
+/* ========= Search ========= */
+window.searchBanks=function(kw){
+  kw=kw.trim().toLowerCase();
+  document.querySelectorAll('.cat-items .bank-item, #catFoldersNav .cat-items, #catFoldersNav .cat-folder').forEach(function(el){
+    if(kw){
+      var found=false;
+      if(el.classList.contains('cat-items')){
+        var banks=el.querySelectorAll('.bank-item'); banks.forEach(function(bi){ var match=bi.textContent.toLowerCase().indexOf(kw)!==-1; bi.style.display=match?'':'none'; if(match)found=true; });
+        el.style.display=found?'block':'none';
+        var cf=document.getElementById('cf_'+el.id.replace('ci_','')); if(cf)cf.style.display=found?'flex':'none';
+      }
+    }else{
+      if(el.classList.contains('cat-items')){el.style.display='none';el.classList.remove('open');}
+      el.style.display='';
+    }
+  });
+};
+
+/* ========= Quiz Config ========= */
+function loadQuizBanksUI(){
+  loadList();
+  if(!ALL_BANKS.length){document.getElementById('quizBankList').innerHTML='<div style="color:var(--f2);padding:16px 0;font-size:13px">暂无题库，请先上传</div>';updateQuizHint();return;}
+  var wbInfo=getWrongBankInfo();
+  if(wbInfo){
+    var wbSel=SELECTED_BANKS['wrong_bank']?'checked':'';
+    html+='<div class="bank-item'+(wbSel?' selected':'')+'" onclick="__quizToggleBank(\'wrong_bank\')" style="border-color:#fca5a5;background:#fff5f5"><input type="checkbox" class="bcheck" '+wbSel+' onclick="event.stopPropagation()" id="chkq_wrong_bank"><label class="binfo" for="chkq_wrong_bank" style="flex:1;cursor:pointer"><div class="bn">📕 错题库 <span style="color:var(--cr);font-size:12px">'+wbInfo.questionCount+' 题</span></div><div class="bm">来自各题库的错题，答对2次自动移除</div></label></div>';
+  }
+  var groups={}; ALL_BANKS.forEach(function(b){(groups[b.category]=groups[b.category]||[]).push(b);});
+  var html='';
+  Object.keys(groups).sort().forEach(function(cat){
+    var banks=groups[cat];
+    var selCount=banks.filter(function(b){return SELECTED_BANKS[b.id];}).length;
+    var allSel=selCount===banks.length;
+    var open=_QUIZ_CATS[cat];
+    html+='<div class="cat-folder'+(open?' open':'')+'" id="qcf_'+escAttr(cat)+'" onclick="__quizToggleCat(\''+escAttr(cat)+'\')" style="color:var(--fg);border-bottom:1px solid var(--bd);border-radius:0;margin-top:6px">';
+    html+='<span class="cf-icon" style="font-size:12px">▶</span> '+escHtml(cat)+' <span class="cf-count">'+selCount+'/'+banks.length+' 选</span>';
+    html+='<span style="margin-left:auto;font-size:11px;color:var(--c1);cursor:pointer;padding:2px 8px;border-radius:4px;background:rgba(79,70,229,.08)" onclick="event.stopPropagation();__quizToggleCatAll(\''+escAttr(cat)+'\','+(allSel?'false':'true')+')">'+(allSel?'取消全选':'全选')+'</span>';
+    html+='</div>';
+    html+='<div class="cat-items'+(open?' open':'')+'" id="qci_'+escAttr(cat)+'">';
+    banks.forEach(function(b){
+      var checked=SELECTED_BANKS[b.id]?'checked':'';
+      html+='<div class="bank-item'+(checked?' selected':'')+'" onclick="__quizToggleBank(\''+b.id+'\')"><input type="checkbox" class="bcheck" '+checked+' onclick="event.stopPropagation()" id="chkq_'+b.id+'"><label class="binfo" for="chkq_'+b.id+'" style="flex:1;cursor:pointer"><div class="bn">'+escHtml(b.name)+(b.subCategory?' › '+escHtml(b.subCategory):'')+'</div><div class="bm">'+b.questionCount+' 题</div></label></div>';
+    });
+    html+='</div>';
+  });
+  document.getElementById('quizBankList').innerHTML=html;
+  updateQuizHint();
+}
+
+var _QUIZ_CATS={}; var _prevView='quiz'; function getActiveView(){var s=document.querySelector('.screen.on');return s?s.id.replace('s','').toLowerCase():'quiz';}
+window.__quizToggleCat=function(cat){
+  _QUIZ_CATS[cat]=!_QUIZ_CATS[cat];
+  var el=document.getElementById('qcf_'+cat), items=document.getElementById('qci_'+cat);
+  if(el) el.classList.toggle('open',_QUIZ_CATS[cat]);
+  if(items) items.classList.toggle('open',_QUIZ_CATS[cat]);
+};
+window.__quizToggleBank=function(id){
+  if(SELECTED_BANKS[id])delete SELECTED_BANKS[id]; else SELECTED_BANKS[id]=true;
+  loadQuizBanksUI();
+};
+window.__quizToggleCatAll=function(cat,checked){
+  var wbInfo=getWrongBankInfo();
+  if(wbInfo){
+    var wbSel=SELECTED_BANKS['wrong_bank']?'checked':'';
+    html+='<div class="bank-item'+(wbSel?' selected':'')+'" onclick="__quizToggleBank(\'wrong_bank\')" style="border-color:#fca5a5;background:#fff5f5"><input type="checkbox" class="bcheck" '+wbSel+' onclick="event.stopPropagation()" id="chkq_wrong_bank"><label class="binfo" for="chkq_wrong_bank" style="flex:1;cursor:pointer"><div class="bn">📕 错题库 <span style="color:var(--cr);font-size:12px">'+wbInfo.questionCount+' 题</span></div><div class="bm">来自各题库的错题，答对2次自动移除</div></label></div>';
+  }
+  var groups={}; ALL_BANKS.forEach(function(b){(groups[b.category]=groups[b.category]||[]).push(b);});
+  (groups[cat]||[]).forEach(function(b){ if(checked)SELECTED_BANKS[b.id]=true;else delete SELECTED_BANKS[b.id]; });
+  loadQuizBanksUI();
+};
+
+function updateQuizHint(){
+  var ids=Object.keys(SELECTED_BANKS), hint=document.getElementById('quizSelInfo');
+  if(!ids.length){hint.textContent='请选择至少一个题库';hint.style.color='var(--cr)';return;}
+  var totalQ=0; ids.forEach(function(id){
+    if(id==='wrong_bank'){var wb=loadWrongBank();totalQ+=wb.questions?wb.questions.length:0;}
+    else{var b=ALL_BANKS.find(function(x){return x.id===id;});if(b)totalQ+=b.questionCount;}
+  });
+  hint.textContent='已选 '+ids.length+' 个题库，共 '+totalQ+' 题'; hint.style.color='var(--cg)';
+  document.getElementById('qHint').textContent='共 '+totalQ+' 题'; document.getElementById('qCount').max=totalQ;
+}
+
+/* ========= Review Mode (背题模式) ========= */
+function startReview(){
+  var ids=Object.keys(SELECTED_BANKS);
+  if(!ids.length){toast('请先选择题库','er');return;}
+  var allQ=[];
+  ids.forEach(function(id){
+    var qs;
+    if(id==='wrong_bank'){var wb=loadWrongBank();qs=wb.questions||[];qs.forEach(function(q){q._bankName='错题库';});}
+    else{qs=loadBank(id);var b=ALL_BANKS.find(function(x){return x.id===id;});qs.forEach(function(q){q._bankName=b?b.name:'';});}
+    allQ=allQ.concat(qs);
+  });
+  if(!allQ.length){toast('选中题库没有题目','er');return;}
+  var typeF=document.getElementById('typeF').value;
+  var filtered=typeF==='all'?allQ:allQ.filter(function(q){return q.type===typeF;});
+  if(!filtered.length){toast('没有符合条件的题目','er');return;}
+  var count=Math.min(parseInt(document.getElementById('qCount').value)||100,filtered.length);
+  var questions=document.getElementById('shuffle').checked?shuffleArr(filtered.slice(0)):filtered.slice(0);
+  questions=questions.slice(0,count);
+  renderReview(questions);
+  navTo('review',document.querySelector('[data-view=review]'));
+}
+
+function renderReview(questions){
+  var tn={single:'单选题',multiple:'多选题',truefalse:'判断题',fill:'填空题'};
+  var tc={single:'bg-s',multiple:'bg-m',truefalse:'bg-t',fill:'bg-f'};
+  document.getElementById('reviewInfo').textContent='共 '+questions.length+' 题';
+  var html='';
+  questions.forEach(function(q,i){
+    html+='<div class="review-card">';
+    html+='<div class="rq-num">第'+(i+1)+'题 · <span class="badge '+tc[q.type]+'">'+tn[q.type]+'</span>'+(q._bankName?' <span class="badge bg-c">'+escHtml(q._bankName)+'</span>':'')+'</div>';
+    html+='<div class="rq-text">'+escHtml(q.question)+'</div>';
+    if(q.type==='fill'){
+      html+='<div class="rq-opt correct">✅ 正确答案：'+escHtml(q.correctAnswers[0]||'')+'</div>';
+    }else{
+      html+='<div class="rq-opts">';
+      q.options.forEach(function(opt,oi){
+        var isCorrect=q.correctAnswers.indexOf(oi)!==-1;
+        html+='<div class="rq-opt'+(isCorrect?' correct':'')+'">'+(isCorrect?'✅ ':'')+String.fromCharCode(65+oi)+'. '+escHtml(opt)+'</div>';
+      });
+      html+='</div>';
+    }
+    if(q.explanation) html+='<div class="rq-exp">💡 '+escHtml(q.explanation)+'</div>';
+    html+='</div>';
+  });
+  document.getElementById('reviewList').innerHTML=html;
+}
+
+window.navToReview=function(){
+  navTo('quiz',document.querySelector('[data-view=quiz]'));
+  var qc=document.getElementById('quizPlayCard');if(qc)qc.style.display='';
+  var ec=document.getElementById('examPlayCard');if(ec)ec.style.display='none';
+  var sb=document.getElementById('startQuizBtn');if(sb)sb.style.display='none';
+  var rb=document.getElementById('reviewBtn');if(rb)rb.style.display='';
+};
+
+window.navToQuiz=function(){
+  navTo('quiz',document.querySelector('[data-view=quiz]'));
+  var qc=document.getElementById('quizPlayCard');if(qc)qc.style.display='';
+  var ec=document.getElementById('examPlayCard');if(ec)ec.style.display='none';
+  var sb=document.getElementById('startQuizBtn');if(sb)sb.style.display='';
+  var rb=document.getElementById('reviewBtn');if(rb)rb.style.display='none';
+};
+window.navToExam=function(){
+  navTo('quiz',document.querySelector('[data-view=quiz]'));
+  var qc=document.getElementById('quizPlayCard');if(qc)qc.style.display='none';
+  var ec=document.getElementById('examPlayCard');if(ec)ec.style.display='';
+};
+
+/* ========= Quiz Logic ========= */
+function startQuiz(){
+  var ids=Object.keys(SELECTED_BANKS);
+  if(!ids.length){toast('请先选择题库','er');return;}
+  var allQ=[];
+  ids.forEach(function(id){
+    var qs;
+    if(id==='wrong_bank'){
+      var wb=loadWrongBank(); qs=wb.questions||[];
+      qs.forEach(function(q){q._bankName='错题库';});
+    }else{
+      qs=loadBank(id);
+      var b=ALL_BANKS.find(function(x){return x.id===id;});
+      qs.forEach(function(q){q._bankName=b?b.name:'';});
+    }
+    allQ=allQ.concat(qs);
+  });
+  if(!allQ.length){toast('选中题库没有题目','er');return;}
+  var typeF=document.getElementById('typeF').value;
+  var filtered=typeF==='all'?allQ:allQ.filter(function(q){return q.type===typeF;});
+  if(!filtered.length){toast('没有符合条件的题目','er');return;}
+  _prevView=getActiveView(); var count=Math.min(parseInt(document.getElementById('qCount').value)||100,filtered.length);
+  PQ=document.getElementById('shuffle').checked?shuffleArr(filtered.slice(0)):filtered.slice(0);
+  PQ=PQ.slice(0,count); ci=0; ans=[]; wrong=[];
+  navTo('quizRun',document.querySelector('[data-view=quiz]'));
+  renderQ();
+}
+
+function shuffleArr(a){var r=a.slice(0);for(var i=r.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=r[i];r[i]=r[j];r[j]=t;}return r;}
+
+function renderQ(){
+  var q=PQ[ci];
+  document.getElementById('pgT').textContent='第 '+(ci+1)+' / '+PQ.length+' 题';
+  document.getElementById('pgF').style.width=(ci/PQ.length*100)+'%';
+  var tn={single:'单选题',multiple:'多选题',truefalse:'判断题',fill:'填空题'}, tc={single:'bg-s',multiple:'bg-m',truefalse:'bg-t',fill:'bg-f'};
+  document.getElementById('qMeta').innerHTML='<span class="badge '+tc[q.type]+'">'+tn[q.type]+'</span><span class="badge" style="background:#f1f5f9;color:var(--f2)">'+q.score+'分</span>'+(q._bankName?'<span class="badge bg-c">'+escHtml(q._bankName)+'</span>':'');
+  document.getElementById('qText').textContent=q.question;
+  document.getElementById('expB').style.display='none';
+  document.getElementById('subBtn').style.display='inline-flex';
+  document.getElementById('nxtBtn').style.display='none';
+  if(q.type==='fill'){
+    document.getElementById('optsA').style.display='none'; document.getElementById('fillA').style.display='block';
+    document.getElementById('fillIn').value=''; setTimeout(function(){document.getElementById('fillIn').focus();},100);
+  }else{
+    document.getElementById('optsA').style.display='block'; document.getElementById('fillA').style.display='none';
+    var isMulti=q.type==='multiple', html='';
+    q.options.forEach(function(opt,i){
+      html+='<div class="quiz-opt" data-i="'+i+'" onclick="__pick(this,'+isMulti+')"><span class="lt">'+String.fromCharCode(65+i)+'</span><span>'+escHtml(opt)+'</span></div>';
+    });
+    document.getElementById('optsA').innerHTML=html;
+  }
+}
+
+window.__pick=function(el,isMulti){ if(isMulti)el.classList.toggle('sel'); else{document.querySelectorAll('.quiz-opt').forEach(function(o){o.classList.remove('sel');});el.classList.add('sel');} };
+
+function getSelected(){
+  var q=PQ[ci]; if(q.type==='fill') return [document.getElementById('fillIn').value.trim()];
+  var sels=document.querySelectorAll('.quiz-opt.sel'), idxs=[]; sels.forEach(function(o){idxs.push(parseInt(o.getAttribute('data-i')));}); return idxs;
+}
+
+function checkAnswer(sel){
+  var q=PQ[ci]; if(q.type==='fill') return (sel[0]||'').toLowerCase().trim()===(q.correctAnswers[0]||'').toLowerCase().trim();
+  if(q.type==='multiple'){var ss=sel.slice(0).sort(),cc=q.correctAnswers.slice(0).sort();return ss.length===cc.length&&ss.every(function(v,i){return v===cc[i];});}
+  return sel[0]===q.correctAnswers[0];
+}
+
+function submitAnswer(){
+  var sel=getSelected(); if(!sel.length||(PQ[ci].type==='fill'&&!sel[0])){toast('请回答当前题目','in');return;}
+  var q=PQ[ci], ok=checkAnswer(sel);
+  ans.push({qi:ci,sel:sel,ok:ok}); if(!ok){wrong.push({q:q,sel:sel});addToWrongBank(q);}else{markCorrectInWrongBank(q);}
+  if(q.type!=='fill'){
+    document.querySelectorAll('.quiz-opt').forEach(function(o,i){o.classList.add('done');if(q.correctAnswers.indexOf(i)!==-1)o.classList.add('ok');if(sel.indexOf(i)!==-1&&q.correctAnswers.indexOf(i)===-1)o.classList.add('ko');});
+  }
+  if(q.explanation){document.getElementById('expT').textContent=q.explanation;document.getElementById('expB').style.display='block';}
+  document.getElementById('subBtn').style.display='none'; document.getElementById('nxtBtn').style.display='inline-flex';
+}
+
+function nextQuestion(){ ci++; if(ci>=PQ.length)showResult(); else renderQ(); }
+
+function quitQuiz(){ if(EXAM_MODE){quitExam();return;} if(confirm('退出？进度将丢失')){ var target=_prevView||'quiz'; navTo(target,document.querySelector('[data-view='+target+']')); } }
+
+/* ========= Result ========= */
+function showResult(){
+  navTo('result',null);
+  var total=PQ.length, correct=ans.filter(function(a){return a.ok;}).length, wr=total-correct, pct=total>0?Math.round(correct/total*100):0;
+  document.getElementById('scoreN').textContent=correct; document.getElementById('scoreT').textContent='/ '+total;
+  document.getElementById('scoreP').textContent='正确率 '+pct+'%';
+  document.getElementById('resG').innerHTML='<div style="padding:8px 14px;border-radius:8px;background:#f0fdf4;color:#166534;font-weight:600">'+correct+' ✓</div><div style="padding:8px 14px;border-radius:8px;background:#fef2f2;color:#991b1b;font-weight:600">'+wr+' ✗</div>';
+  var revHtml='', tn2={single:'单选',multiple:'多选',truefalse:'判断',fill:'填空'};
+  ans.forEach(function(a,i){
+    var q=PQ[a.qi];
+    revHtml+='<div class="'+(a.ok?'rev ok':'rev ko')+'"><div style="font-weight:600;font-size:14px;margin-bottom:4px">'+(i+1)+'. ['+tn2[q.type]+'] '+escHtml(q.question)+'</div>';
+    if(q.type==='fill') revHtml+='<div style="font-size:13px;color:var(--f2)">你的答案: '+escHtml(a.sel[0]||'（未答）')+'，正确答案: '+escHtml(q.correctAnswers[0]||'')+'</div>';
+    else{var toL=function(s){return s.map(function(x){return String.fromCharCode(65+x);}).join(', ');};revHtml+='<div style="font-size:13px;color:var(--f2)">你的答案: '+toL(a.sel)+'，正确答案: '+toL(q.correctAnswers)+'</div>';}
+    if(q._bankName) revHtml+='<div style="font-size:11px;color:var(--c1);margin-top:2px">'+escHtml(q._bankName)+'</div>';
+    revHtml+='</div>';
+  });
+  document.getElementById('revL').innerHTML=revHtml;
+}
+
+function retryWrong(){ if(!wrong.length){toast('没有错题哦','in');return;} PQ=wrong.map(function(w){return w.q;}); ci=0;ans=[];wrong=[]; navTo('quizRun',null); renderQ(); }
+
+/* ========= Toast ========= */
+function toast(msg,type){ var el=document.createElement('div');el.className='toast toast--'+(type||'in');el.textContent=msg;document.body.appendChild(el);setTimeout(function(){el.remove();},2500);}
+
+/* ========= Utils ========= */
+function escHtml(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function escAttr(s){return s.replace(/'/g,"\\'").replace(/"/g,'&quot;');}
+
+/* ========= Exam Mode ========= */
+var EXAM_MODE=false, EXAM_INTERVAL=null, EXAM_SECONDS=0;
+
+function startExam(){
+  var ids=Object.keys(SELECTED_BANKS);
+  if(!ids.length){toast('请先选择题库','er');return;}
+  var allQ=[];
+  ids.forEach(function(id){
+    var qs;
+    if(id==='wrong_bank'){var wb=loadWrongBank();qs=wb.questions||[];qs.forEach(function(q){q._bankName='错题库';});}
+    else{qs=loadBank(id);var b=ALL_BANKS.find(function(x){return x.id===id;});qs.forEach(function(q){q._bankName=b?b.name:'';});}
+    allQ=allQ.concat(qs);
+  });
+  if(!allQ.length){toast('选中题库没有题目','er');return;}
+  var typeF=document.getElementById('examTypeF').value;
+  var filtered=typeF==='all'?allQ:allQ.filter(function(q){return q.type===typeF;});
+  if(!filtered.length){toast('没有符合条件的题目','er');return;}
+  var count=Math.min(parseInt(document.getElementById('examCount').value)||10,filtered.length);
+  PQ=document.getElementById('examShuffle').checked?shuffleArr(filtered.slice(0)):filtered.slice(0);
+  PQ=PQ.slice(0,count); ci=0; ans=[]; wrong=[];
+
+  // Timer setup
+  EXAM_MODE=true;
+  var timeMin=parseInt(document.getElementById('examTime').value)||60;
+  EXAM_SECONDS=timeMin*60;
+
+  _prevView=getActiveView();
+  navTo('quizRun',document.querySelector('[data-view=quiz]'));
+  document.getElementById('examBar').style.display='block';
+  updateExamClock();
+  clearInterval(EXAM_INTERVAL);
+  EXAM_INTERVAL=setInterval(examTick,1000);
+  renderQ();
+}
+
+function updateExamClock(){
+  var m=Math.floor(EXAM_SECONDS/60), s=EXAM_SECONDS%60;
+  document.getElementById('examClock').textContent=m+':'+(s<10?'0':'')+s;
+  var bar=document.getElementById('examBar');
+  bar.classList.toggle('warn',EXAM_SECONDS<=300&&EXAM_SECONDS>60);
+  bar.classList.toggle('danger',EXAM_SECONDS<=60);
+}
+
+function examTick(){
+  EXAM_SECONDS--;
+  updateExamClock();
+  if(EXAM_SECONDS<=0){
+    clearInterval(EXAM_INTERVAL);
+    toast('考试时间到！自动交卷','er');
+    // Auto-submit current if unanswered
+    var sel=getSelected();
+    if(sel.length&&(PQ[ci].type!=='fill'||sel[0])){
+      var q=PQ[ci], ok=checkAnswer(sel);
+      ans.push({qi:ci,sel:sel,ok:ok});
+      if(!ok){wrong.push({q:q,sel:sel});addToWrongBank(q);}else{markCorrectInWrongBank(q);}
+    }
+    showExamResult();
+  }
+}
+
+function showExamResult(){
+  EXAM_MODE=false;
+  clearInterval(EXAM_INTERVAL);
+  document.getElementById('examBar').style.display='none';
+  navTo('result',null);
+  var total=PQ.length, correct=ans.filter(function(a){return a.ok;}).length, wr=total-correct;
+  var score=total>0?Math.round(correct/total*100):0;
+  document.getElementById('scoreN').textContent=score;
+  document.getElementById('scoreT').textContent='/ 100';
+  document.getElementById('scoreP').textContent='正确 '+correct+'/'+total+' 题';
+  document.getElementById('resG').innerHTML='<div style="padding:8px 14px;border-radius:8px;background:#f0fdf4;color:#166534;font-weight:600">'+correct+' ✓</div><div style="padding:8px 14px;border-radius:8px;background:#fef2f2;color:#991b1b;font-weight:600">'+wr+' ✗</div>';
+  var revHtml='', tn2={single:'单选',multiple:'多选',truefalse:'判断',fill:'填空'};
+  ans.forEach(function(a,i){
+    var q=PQ[a.qi];
+    revHtml+='<div class="'+(a.ok?'rev ok':'rev ko')+'"><div style="font-weight:600;font-size:14px;margin-bottom:4px">'+(i+1)+'. ['+tn2[q.type]+'] '+escHtml(q.question)+'</div>';
+    if(q.type==='fill') revHtml+='<div style="font-size:13px;color:var(--f2)">你的答案: '+escHtml(a.sel[0]||'（未答）')+'，正确答案: '+escHtml(q.correctAnswers[0]||'')+'</div>';
+    else{var toL=function(s){return s.map(function(x){return String.fromCharCode(65+x);}).join(', ');};revHtml+='<div style="font-size:13px;color:var(--f2)">你的答案: '+toL(a.sel)+'，正确答案: '+toL(q.correctAnswers)+'</div>';}
+    if(q._bankName) revHtml+='<div style="font-size:11px;color:var(--c1);margin-top:2px">'+escHtml(q._bankName)+'</div>';
+    revHtml+='</div>';
+  });
+  document.getElementById('revL').innerHTML=revHtml;
+}
+
+function quitExam(){
+  if(confirm('退出考试？成绩将丢失')){
+    EXAM_MODE=false;
+    clearInterval(EXAM_INTERVAL);
+    document.getElementById('examBar').style.display='none';
+    var target=_prevView||'quiz';
+    navTo(target,document.querySelector('[data-view='+target+']'));
+  }
+}
+
+/* ========= Init ========= */
+function toggleTheme(){
+  var isDark=document.body.classList.toggle('dark');
+  document.getElementById('themeToggle').textContent=isDark?'☀️':'🌙';
+  try{localStorage.setItem('qq_theme',isDark?'dark':'light');}catch(e){}
+}
+
+function toggleSidebar(){
+  var collapsed=document.body.classList.toggle('sidebar-collapsed');
+  try{localStorage.setItem('qq_sidebar',collapsed?'collapsed':'visible');}catch(e){}
+  var btns=document.querySelectorAll('.sb-toggle-inline');
+  btns.forEach(function(b){b.textContent=collapsed?'▶':'◀';b.title=collapsed?'展开侧边栏':'收起侧边栏';});
+}
+function loadSidebar(){
+  try{var t=localStorage.getItem('qq_sidebar');if(t==='collapsed'){document.body.classList.add('sidebar-collapsed');}}catch(e){}
+}
+function loadTheme(){
+  var t=null; try{t=localStorage.getItem('qq_theme');}catch(e){}
+  if(t==='dark'){document.body.classList.add('dark');document.getElementById('themeToggle').textContent='☀️';}
+  else{document.getElementById('themeToggle').textContent='🌙';}
+}
+function init(){
+  loadTheme();
+  loadSidebar();
+  loadList(); ALL_BANKS.forEach(function(b){SELECTED_BANKS[b.id]=true;});
+  buildCatFoldersNav();
+  initUpload(); loadHomeStats();
+  document.getElementById('modalCancelBtn')&&document.getElementById('modalCancelBtn').addEventListener('click',function(){closeModal(false);});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+
+
+window.toggleTheme=toggleTheme;
+window.toggleSidebar=toggleSidebar;
+window.navTo=navTo;
+window.navToQuiz=navToQuiz;
+window.navToExam=navToExam;
+window.startExam=startExam;
+window.quitExam=quitExam;
+window.closeModal=closeModal;
+window.confirmBank=confirmBank;
+window.startQuiz=startQuiz;
+window.startReview=startReview;
+window.openManualImport=openManualImport;
+window.saveManualQuestion=saveManualQuestion;
+window.closeManualModal=closeManualModal;
+window.addManualOption=addManualOption;
+window.onManualTypeChange=onManualTypeChange;
+window.quitQuiz=quitQuiz;
+window.submitAnswer=submitAnswer;
+window.nextQuestion=nextQuestion;
+window.retryWrong=retryWrong;
+window.__pick=__pick;
+})();
+</script>
+</body>
+</html>

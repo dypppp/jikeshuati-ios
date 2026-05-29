@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">极客刷题_智科_网络运维</string>
+    <string name="title_activity_main">极客刷题</string>
+    <string name="package_name">com.jikeshuati.app</string>
+    <string name="custom_url_scheme">com.jikeshuati.app</string>
+</resources>
