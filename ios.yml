@@ -1,0 +1,62 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Sync Capacitor
+        run: npx cap sync ios
+
+      - name: Build iOS (xcodebuild)
+        run: |
+          cd ios/App
+          xcodebuild -scheme App \
+            -configuration Debug \
+            -destination "generic/platform=iOS Simulator" \
+            -derivedDataPath DerivedData \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Create IPA from app bundle
+        run: |
+          APP_PATH=$(find ios/App/DerivedData -name "App.app" -type d | head -1)
+          echo "App path: $APP_PATH"
+
+          if [ -z "$APP_PATH" ]; then
+            echo "Searching all .app bundles..."
+            find ios/App/DerivedData -name "*.app" -type d
+            exit 1
+          fi
+
+          APP_NAME=$(basename "$APP_PATH")
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+          hdiutil create -volname App -srcfolder Payload -ov -format UDRO app.ipa
+          rm -rf Payload
+          ls -lh app.ipa
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: iOS-App-IPA
+          path: app.ipa
+          retention-days: 7
